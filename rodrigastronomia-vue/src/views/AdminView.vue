@@ -24,7 +24,13 @@
     <hr class="divider" />
 
     <h2>Agregar Nuevo Curso</h2>
-    <form @submit.prevent="crearCurso" class="form-curso">
+
+  <div v-if="cursoCreado"> 
+    <p class="mensaje">Curso creado correctamente.</p>
+    <button @click="reiniciarFormulario" class="boton-nuevo-curso">Agregar otro curso</button>
+
+  </div>
+<form v-else @submit.prevent="crearCurso" class="form-curso">
   <input v-model="nombre" type="text" placeholder="Nombre del curso" required />
   <input v-model="descripcion" type="text" placeholder="Descripción" required />
   <input v-model="precio" type="number" step="0.01" placeholder="Precio" required />
@@ -34,9 +40,6 @@
   <input v-model="duracion" type="text" placeholder="Duración (Ej: 2 meses, 12 clases)" required />
   <button type="submit">Crear curso</button>
 </form>
-
-
-    <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
   </div>
 </template>
 
@@ -74,7 +77,7 @@ const detalles = ref('')
 const imagen = ref('')
 const modalidad = ref('')
 const duracion = ref('')
-const mensaje = ref('')
+const cursoCreado = ref(false)
 
 const crearCurso = async () => {
   try {
@@ -88,12 +91,25 @@ const crearCurso = async () => {
       duracion: duracion.value,
     })
 
-    mensaje.value = 'Curso creado correctamente.'
-    nombre.value = descripcion.value = precio.value = detalles.value = imagen.value = modalidad.value = duracion.value = ''
+    cursoCreado.value = true
+    limpiarCampos()
   } catch (err) {
-    mensaje.value = 'Error al crear el curso.'
-    console.error(err)
+    console.error('Error al crear el curso', err)
   }
+}
+
+const reiniciarFormulario = () => {
+  cursoCreado.value = false
+}
+
+const limpiarCampos = () => {
+   nombre.value = ''
+  descripcion.value = ''
+  precio.value = ''
+  detalles.value = ''
+  imagen.value = ''
+  modalidad.value = ''
+  duracion.value = ''
 }
 </script>
 
@@ -176,5 +192,20 @@ h2 {
   margin-top: 1rem;
   font-weight: bold;
   color: #2d6a4f;
+}
+
+.boton-nuevo-curso {
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.boton-nuevo-curso:hover {
+  background-color: #369f6a;
 }
 </style>
