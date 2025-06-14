@@ -1,4 +1,10 @@
 #!/bin/sh
+set -e
+
+if [ ! -d "vendor" ]; then
+  echo "Instalando dependencias de Composer..."
+  composer install --no-interaction --optimize-autoloader
+fi
 
 echo "Esperando a MySQL..."
 until mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASS" -e "SELECT 1;" >/dev/null 2>&1; do
