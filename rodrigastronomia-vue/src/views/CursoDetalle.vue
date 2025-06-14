@@ -5,14 +5,16 @@ import api from '../axios'
 import CompraModal from '../components/CompraModal.vue'
 
 const route = useRoute()
-const curso = computed(() =>
-  store.cursos.find(c => c.id_curso === Number(route.params.id))
-)
+const curso = ref(null)
 const mostrarModal = ref(false)
 
 onMounted(async () => {
-  const res = await api.get('/cursos')
-  curso.value = res.data.find(c => c.id_curso == route.params.id)
+  try {
+    const res = await api.get(`/cursos/${route.params.id}`)
+    curso.value = res.data
+  } catch (err) {
+    console.error('Error al obtener el curso:', err)
+  }
 })
 
 const abrirModal = () => {
@@ -20,14 +22,15 @@ const abrirModal = () => {
 }
 </script>
 
+
 <template>
   <div v-if="curso" class="detalle-container">
     <h1>{{ curso.nombre }}</h1>
     <img :src="curso.imagen" alt="Imagen del curso" />
     <p><strong>Descripción:</strong> {{ curso.descripcion }}</p>
     <p><strong>Precio:</strong> ${{ curso.precio }}</p>
-    <p><strong>Modalidad:</strong> Online (a tu ritmo)</p>
-    <p><strong>Duración:</strong> 4 semanas</p>
+    <p><strong>Modalidad:</strong> {{ curso.modalidad }}</p>
+<p><strong>Duración:</strong> {{ curso.duracion }}</p>
 
     <button class="btn-comprar" @click="abrirModal">Comprar este curso</button>
 
@@ -66,5 +69,10 @@ p {
   margin-top: 1rem;
   border-radius: 5px;
   cursor: pointer;
+}
+
+body.dark-mode .detalle-container {
+  background-color: #1e1e1e;
+  color: #eee;
 }
 </style>

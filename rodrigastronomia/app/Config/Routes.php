@@ -10,6 +10,7 @@ $routes->get('usuarios/celular', 'Usuarios::buscarPorCelular');
 $routes->get('cursos', 'Cursos::index');
 $routes->post('cursos', 'Cursos::create');
 $routes->options('cursos', 'Cursos::options');
+$routes->get('cursos/(:num)', 'Cursos::show/$1');
 
 $routes->get('/comprar', 'ComprasController::comprar');
 $routes->post('/comprar', 'ComprasController::comprar');

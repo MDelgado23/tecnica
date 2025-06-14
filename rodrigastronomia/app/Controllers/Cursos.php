@@ -58,4 +58,15 @@ public function options()
     return $this->response->setStatusCode(200);
 }
 
+public function show($id = null)
+{
+    $curso = $this->model->find($id);
+
+    if (!$curso) {
+        return $this->failNotFound('Curso no encontrado');
+    }
+
+    return $this->respond($curso);
+}
+
 }
