@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useUsuarioStore } from '../stores/usuario'
 import { useRouter } from 'vue-router'
 import api from '../axios'
@@ -54,9 +54,9 @@ const store = useUsuarioStore()
 const usuario = computed(() => store.usuario)
 
 const form = ref({
-  nombre: '',
-  email: '',
-  celnum: '',
+  nombre: usuario.value?.nombre || '',
+  email: usuario.value?.email || '',
+  celnum: usuario.value?.celnum || '',
   id_curso: ''
 })
 const mensaje = ref('')
@@ -87,25 +87,38 @@ const comprar = async () => {
       form.value.celnum = usuario.value.celnum
     }
 
-    // Verificar datos repetidos si no está logueado
-    if (!usuario.value) {
-      const checkEmail = await api.get(`/usuarios?email=${form.value.email}`).catch(() => null)
-      const checkCel = await api.get(`/usuarios/celular?celnum=${form.value.celnum}`).catch(() => null)
-
-      if (checkEmail?.data || checkCel?.data) {
-        mensaje.value = 'Ya existe una cuenta con estos datos. Si es usted, inicie sesión.'
-        return
-      }
-    }
-
+    // Ya no hacemos verificación previa de email/celular: lo maneja el backend
     await api.post('/compras', form.value)
     mensaje.value = '¡Compra realizada con éxito!'
     emit('comprado')
   } catch (err) {
     console.error(err)
-    mensaje.value = 'Error al realizar la compra'
+    mensaje.value = 'Error al realizar la compra, inicie sesión'
   }
 }
+
+// Rellenar los datos al mostrar el modal
+watch(
+  () => props.mostrar,
+  (mostrar) => {
+    if (mostrar) {
+      if (usuario.value) {
+        form.value.nombre = usuario.value.nombre
+        form.value.email = usuario.value.email
+        form.value.celnum = usuario.value.celnum
+      } else {
+        form.value.nombre = ''
+        form.value.email = ''
+        form.value.celnum = ''
+      }
+      form.value.id_curso = props.curso?.id_curso || ''
+    }
+  }
+)
+
+watch(() => props.curso, (nuevoCurso) => {
+  form.value.id_curso = nuevoCurso?.id_curso || ''
+})
 </script>
 
 <style scoped>

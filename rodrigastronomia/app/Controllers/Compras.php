@@ -14,39 +14,45 @@ class Compras extends ResourceController
 
 
     public function create()
-    {  
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+{
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 
-        $data = $this->request->getJSON(true);
+    $data = $this->request->getJSON(true);
 
-    
-        $usuarioModel = new UsuarioModel();
-        $usuario = $usuarioModel->where('email', $data['email'])->first();
+    $usuarioModel = new UsuarioModel();
+    $usuario = $usuarioModel->where('email', $data['email'])->first();
 
-        if (!$usuario) {
-            $usuarioData = [
-                'nombre' => $data['nombre'],
-                'email'  => $data['email'],
-                'celnum' => $data['celnum'],
-                'rol'    => 'cliente'
-            ];
-            $usuarioModel->insert($usuarioData);
-            $id_usuario = $usuarioModel->insertID();
-        } else {
-            $id_usuario = $usuario['id_usuario'];
+    if ($usuario) {
+        // Si el email existe pero el celular no coincide, bloquear
+        if ($usuario['celnum'] !== $data['celnum']) {
+            return $this->fail([
+                'msg' => 'Ya existe una cuenta con este email. Si es usted, inicie sesión.'
+            ]);
         }
-
-        $compraModel = new CompraModel();
-        $compraModel->insert([
-            'id_usuario' => $id_usuario,
-            'id_curso'   => $data['id_curso'],
-            'fecha_compra' => date('Y-m-d H:i:s')
-        ]);
-
-        return $this->respondCreated(['msg' => 'Compra registrada']);
+        $id_usuario = $usuario['id_usuario'];
+    } else {
+        // Crear nuevo usuario
+        $usuarioData = [
+            'nombre' => $data['nombre'],
+            'email'  => $data['email'],
+            'celnum' => $data['celnum'],
+            'rol'    => 'cliente'
+        ];
+        $usuarioModel->insert($usuarioData);
+        $id_usuario = $usuarioModel->insertID();
     }
+
+    $compraModel = new CompraModel();
+    $compraModel->insert([
+        'id_usuario' => $id_usuario,
+        'id_curso'   => $data['id_curso'],
+        'fecha_compra' => date('Y-m-d H:i:s')
+    ]);
+
+    return $this->respondCreated(['msg' => 'Compra registrada']);
+}
 
 
     public function cliente()
