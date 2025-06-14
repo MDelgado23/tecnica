@@ -8,7 +8,7 @@ use CodeIgniter\Router\RouteCollection;
 
 
 $routes->get('usuarios/celular', 'Usuarios::buscarPorCelular');
-$routes->get('usuarios', 'Usuarios::showByEmail');
+$routes->get('usuarios/email', 'Usuarios::showByEmail');
 
 $routes->get('/comprar', 'ComprasController::comprar');
 $routes->post('/comprar', 'ComprasController::comprar');

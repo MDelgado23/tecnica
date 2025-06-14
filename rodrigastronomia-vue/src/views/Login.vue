@@ -24,11 +24,10 @@ const store = useUsuarioStore()
 
 const login = async () => {
   try {
-    const res = await api.get(`/usuarios?email=${email.value}`)
+    const res = await api.get(`/usuarios/email?email=${email.value}`)
 
     store.setUsuario(res.data)
 
-    // Redirigir a la ruta que estaba pendiente
     const destino = localStorage.getItem('ruta_pendiente') || '/'
     localStorage.removeItem('ruta_pendiente')
     router.push(destino)
@@ -38,6 +37,7 @@ const login = async () => {
   }
 }
 </script>
+
 
 <style scoped>
 .container {

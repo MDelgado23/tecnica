@@ -88,4 +88,21 @@ class Cursos extends ResourceController
 
         return $this->respond($curso);
     }
+
+    public function delete($id = null)
+{
+    if (!$id) {
+        return $this->failValidationError('ID del curso requerido');
+    }
+
+    $curso = $this->model->find($id);
+
+    if (!$curso) {
+        return $this->failNotFound('Curso no encontrado');
+    }
+
+    $this->model->delete($id);
+
+    return $this->respondDeleted(['mensaje' => 'Curso eliminado correctamente']);
+}
 }
