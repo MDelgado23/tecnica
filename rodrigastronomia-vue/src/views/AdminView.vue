@@ -1,7 +1,7 @@
 <template>
   <div class="admin-container">
+    <!-- Seccion tabla requerida de cantidad de cursos comprados -->
     <h2>Resumen de Compras</h2>
-
     <div v-if="resumen.length">
       <table class="resumen-table">
         <thead>
@@ -19,16 +19,13 @@
       </table>
     </div>
     <p v-else class="loading">Cargando resumen...</p>
-
     <hr class="divider" />
-
+    <!-- A partir de aca se maneja el crud -->
     <h2>Agregar Nuevo Curso</h2>
-
     <div v-if="cursoCreado">
       <p class="mensaje">Curso creado correctamente.</p>
       <button @click="reiniciarFormulario" class="boton-nuevo-curso">Agregar otro curso</button>
     </div>
-
     <form v-else @submit.prevent="crearCurso" class="form-curso">
       <input v-model="nombre" type="text" placeholder="Nombre del curso" required />
       <input v-model="descripcion" type="text" placeholder="Descripción" required />
@@ -39,10 +36,8 @@
       <input v-model="duracion" type="text" placeholder="Duración (Ej: 2 meses, 12 clases)" required />
       <button type="submit">Crear curso</button>
     </form>
-
     <hr class="divider" />
     <h2>Gestión de Cursos</h2>
-
     <table class="tabla-cursos">
       <thead>
         <tr>
@@ -90,15 +85,10 @@
         </tr>
       </tbody>
     </table>
-
+    <!-- Paginacion -->
     <div class="paginacion" v-if="totalPaginas > 1">
       <button :disabled="paginaActual === 1" @click="paginaActual--">Anterior</button>
-      <button
-        v-for="n in totalPaginas"
-        :key="n"
-        :class="{ activo: paginaActual === n }"
-        @click="paginaActual = n"
-      >
+      <button v-for="n in totalPaginas" :key="n" :class="{ activo: paginaActual === n }" @click="paginaActual = n">
         {{ n }}
       </button>
       <button :disabled="paginaActual === totalPaginas" @click="paginaActual++">Siguiente</button>
@@ -112,6 +102,7 @@ import { useRouter } from 'vue-router'
 import api from '../axios'
 
 const router = useRouter()
+
 const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
 
 if (!usuario) {
@@ -121,14 +112,16 @@ if (!usuario) {
   router.push('/')
 }
 
-// --- CURSOS Y RESUMEN
+// Variables para el resumen 
 const resumen = ref([])
 const cursos = ref([])
+
+// Variables para manejo de estado, en creacion y edicion de cursos
 const editandoId = ref(null)
 const cursoEditado = ref({})
 const cursoCreado = ref(false)
 
-// --- NUEVO CURSO
+// Variables para el form de creacion de cursos
 const nombre = ref('')
 const descripcion = ref('')
 const precio = ref('')
@@ -137,11 +130,14 @@ const imagen = ref('')
 const modalidad = ref('')
 const duracion = ref('')
 
-// --- PAGINACIÓN
+// Paginacion
 const paginaActual = ref(1)
 const totalPaginas = ref(1)
 const porPagina = ref(3)
 
+
+// Pedimos los datos
+// Para el resumen
 const fetchResumen = async () => {
   try {
     const res = await api.get('/compras/resumen')
@@ -150,7 +146,7 @@ const fetchResumen = async () => {
     console.error('Error al obtener resumen de compras:', err)
   }
 }
-
+// Para la tabla de cursos (con paginacion)
 const fetchCursos = async () => {
   try {
     const res = await api.get(`/cursos?page=${paginaActual.value}&limit=${porPagina.value}`)
@@ -160,15 +156,7 @@ const fetchCursos = async () => {
     console.error('Error al obtener cursos:', err)
   }
 }
-
-onMounted(() => {
-  fetchResumen()
-  fetchCursos()
-})
-
-watch(paginaActual, fetchCursos)
-
-// --- CREAR
+// Crear curso
 const crearCurso = async () => {
   try {
     await api.post('/cursos', {
@@ -187,6 +175,32 @@ const crearCurso = async () => {
     console.error('Error al crear el curso', err)
   }
 }
+// Cuando le das click al lapiz para editar, comienza la edicion
+const comenzarEdicion = (curso) => {
+  editandoId.value = curso.id_curso
+  cursoEditado.value = { ...curso }
+}
+// Al terminar de editar y tocar el icono del disquete, ejecuta esta funcion
+const guardarEdicion = async () => {
+  try {
+    await api.put(`/cursos/${editandoId.value}`, cursoEditado.value)
+    editandoId.value = null
+    fetchCursos()
+  } catch (err) {
+    console.error('Error al editar curso:', err)
+  }
+}
+// Eliminar curso
+const eliminarCurso = async (id) => {
+  if (confirm('¿Estás seguro de eliminar este curso?')) {
+    try {
+      await api.delete(`/cursos/${id}`)
+      fetchCursos()
+    } catch (err) {
+      console.error('Error al eliminar curso:', err)
+    }
+  }
+}
 
 const limpiarCampos = () => {
   nombre.value = ''
@@ -202,33 +216,12 @@ const reiniciarFormulario = () => {
   cursoCreado.value = false
 }
 
-// --- EDITAR
-const comenzarEdicion = (curso) => {
-  editandoId.value = curso.id_curso
-  cursoEditado.value = { ...curso }
-}
+onMounted(() => {
+  fetchResumen()
+  fetchCursos()
+})
 
-const guardarEdicion = async () => {
-  try {
-    await api.put(`/cursos/${editandoId.value}`, cursoEditado.value)
-    editandoId.value = null
-    fetchCursos()
-  } catch (err) {
-    console.error('Error al editar curso:', err)
-  }
-}
-
-// --- ELIMINAR
-const eliminarCurso = async (id) => {
-  if (confirm('¿Estás seguro de eliminar este curso?')) {
-    try {
-      await api.delete(`/cursos/${id}`)
-      fetchCursos()
-    } catch (err) {
-      console.error('Error al eliminar curso:', err)
-    }
-  }
-}
+watch(paginaActual, fetchCursos)
 </script>
 
 <style scoped>
@@ -347,6 +340,7 @@ h2 {
   width: 90px;
   box-sizing: border-box;
 }
+
 .tabla-cursos th,
 .tabla-cursos td {
   padding: 0.6rem;
@@ -356,7 +350,7 @@ h2 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  
+
 }
 
 .tabla-cursos th {
@@ -364,11 +358,11 @@ h2 {
   font-weight: bold;
   color: #333;
 }
+
 .tabla-cursos td:nth-child(2),
 .tabla-cursos td:nth-child(3),
 .tabla-cursos td:nth-child(5),
-.tabla-cursos td:nth-child(7)
- {
+.tabla-cursos td:nth-child(7) {
   max-width: 200px;
 }
 
@@ -378,6 +372,7 @@ h2 {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
 .tabla-cursos button {
   width: 30px;
   height: 30px;
@@ -392,15 +387,18 @@ h2 {
   justify-content: center;
   padding: 0;
 }
+
 .tabla-cursos button:hover {
   background-color: #36976e;
 }
+
 .paginacion {
   margin-top: 1rem;
   display: flex;
   gap: 0.5rem;
   justify-content: center;
 }
+
 .paginacion button {
   padding: 0.4rem 0.8rem;
   border: none;
@@ -409,9 +407,11 @@ h2 {
   border-radius: 5px;
   cursor: pointer;
 }
+
 .paginacion button.activo {
   background-color: #2f855a;
 }
+
 .paginacion button:disabled {
   background-color: #ccc;
   cursor: default;

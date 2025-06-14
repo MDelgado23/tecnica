@@ -1,3 +1,18 @@
+<template>
+  <div v-if="curso" class="detalle-container">
+    <h1>{{ curso.nombre }}</h1>
+    <img :src="curso.imagen" alt="Imagen del curso" />
+    <p><strong>Descripción:</strong> {{ curso.descripcion }}</p>
+    <p><strong>Precio:</strong> ${{ curso.precio }}</p>
+    <p><strong>Modalidad:</strong> {{ curso.modalidad }}</p>
+    <p><strong>Duración:</strong> {{ curso.duracion }}</p>
+
+    <button class="btn-comprar" @click="abrirModal">Comprar este curso</button>
+
+    <CompraModal v-if="mostrarModal" :curso="curso" :mostrar="mostrarModal" @cerrar="mostrarModal = false" />
+  </div>
+</template>
+
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
@@ -21,27 +36,6 @@ const abrirModal = () => {
   mostrarModal.value = true
 }
 </script>
-
-
-<template>
-  <div v-if="curso" class="detalle-container">
-    <h1>{{ curso.nombre }}</h1>
-    <img :src="curso.imagen" alt="Imagen del curso" />
-    <p><strong>Descripción:</strong> {{ curso.descripcion }}</p>
-    <p><strong>Precio:</strong> ${{ curso.precio }}</p>
-    <p><strong>Modalidad:</strong> {{ curso.modalidad }}</p>
-<p><strong>Duración:</strong> {{ curso.duracion }}</p>
-
-    <button class="btn-comprar" @click="abrirModal">Comprar este curso</button>
-
-    <CompraModal
-      v-if="mostrarModal"
-      :curso="curso"
-      :mostrar="mostrarModal"
-      @cerrar="mostrarModal = false"
-    />
-  </div>
-</template>
 
 <style scoped>
 .detalle-container {
@@ -70,7 +64,6 @@ p {
   border-radius: 5px;
   cursor: pointer;
 }
-
 body.dark-mode .detalle-container {
   background-color: #1e1e1e;
   color: #eee;

@@ -1,75 +1,20 @@
-<script setup>
-import { ref, onMounted, watch } from 'vue'
-import { useUsuarioStore } from '../stores/usuario'
-import api from '../axios'
-import CursoCard from '../components/CursoCard.vue'
-import CompraModal from '../components/CompraModal.vue'
-
-const store = useUsuarioStore()
-
-const cursos = ref([])
-const mostrarModal = ref(false)
-const cursoSeleccionado = ref({})
-
-const currentPage = ref(1)
-const totalPages = ref(1)
-const limit = ref(6)
-
-const fetchCursos = async () => {
-  try {
-    const res = await api.get(`/cursos?page=${currentPage.value}&limit=${limit.value}`)
-    cursos.value = res.data.cursos
-    totalPages.value = res.data.totalPaginas
-  } catch (error) {
-    console.error('Error al cargar cursos:', error)
-  }
-}
-
-onMounted(fetchCursos)
-watch([currentPage, limit], fetchCursos)
-
-const abrirModal = (curso) => {
-  cursoSeleccionado.value = curso
-  mostrarModal.value = true
-}
-
-const cambiarPagina = (pagina) => {
-  if (pagina >= 1 && pagina <= totalPages.value) {
-    currentPage.value = pagina
-  }
-}
-</script>
-
 <template>
   <div class="container">
     <h1>Cursos Gastronómicos</h1>
-
     <div class="cursos">
-      <CursoCard
-        v-for="curso in cursos"
-        :key="curso.id_curso"
-        :curso="curso"
-        @comprar="abrirModal"
-      />
+      <CursoCard v-for="curso in cursos" :key="curso.id_curso" :curso="curso" @comprar="abrirModal" />
     </div>
-
-    <!-- paginación -->
+    <!-- Paginación -->
     <div class="paginacion-wrapper" v-if="totalPages > 1">
       <div class="paginacion">
         <button :disabled="currentPage === 1" @click="cambiarPagina(currentPage - 1)">Anterior</button>
-
-        <button
-          v-for="page in totalPages"
-          :key="page"
-          :class="{ activo: currentPage === page }"
-          @click="cambiarPagina(page)"
-        >
+        <button v-for="page in totalPages" :key="page" :class="{ activo: currentPage === page }"
+          @click="cambiarPagina(page)">
           {{ page }}
         </button>
-
         <button :disabled="currentPage === totalPages" @click="cambiarPagina(currentPage + 1)">Siguiente</button>
       </div>
-
+      <!-- Selector de cantidad por pagina -->
       <div class="limite-selector">
         <label for="limite">Mostrar</label>
         <select id="limite" v-model="limit">
@@ -81,15 +26,54 @@ const cambiarPagina = (pagina) => {
         <span>por página</span>
       </div>
     </div>
-
-    <CompraModal
-      v-if="mostrarModal"
-      :curso="cursoSeleccionado"
-      :mostrar="mostrarModal"
-      @cerrar="mostrarModal = false"
-    />
+    <CompraModal v-if="mostrarModal" :curso="cursoSeleccionado" :mostrar="mostrarModal"
+      @cerrar="mostrarModal = false" />
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted, watch } from 'vue'
+import { useUsuarioStore } from '../stores/usuario'
+import api from '../axios'
+import CursoCard from '../components/CursoCard.vue'
+import CompraModal from '../components/CompraModal.vue'
+
+const store = useUsuarioStore()
+// Manejo de estados de cursos y paginacion
+const cursos = ref([])
+const currentPage = ref(1)
+const totalPages = ref(1)
+const limit = ref(6)
+// Modal de compra
+const mostrarModal = ref(false)
+const cursoSeleccionado = ref({})
+
+// Traigo todos los cursos con datos para la paginacion tambien
+const fetchCursos = async () => {
+  try {
+    const res = await api.get(`/cursos?page=${currentPage.value}&limit=${limit.value}`)
+    cursos.value = res.data.cursos
+    totalPages.value = res.data.totalPaginas
+  } catch (error) {
+    console.error('Error al cargar cursos:', error)
+  }
+}
+
+const abrirModal = (curso) => {
+  cursoSeleccionado.value = curso
+  mostrarModal.value = true
+}
+
+const cambiarPagina = (pagina) => {
+  if (pagina >= 1 && pagina <= totalPages.value) {
+    currentPage.value = pagina
+  }
+}
+
+onMounted(fetchCursos)
+
+watch([currentPage, limit], fetchCursos)
+</script>
 
 <style scoped>
 .container {
@@ -110,9 +94,11 @@ h1 {
   text-align: center;
   margin-bottom: 1.5rem;
 }
+
 h1.dark-mode {
   color: white;
 }
+
 .cursos {
   display: flex;
   flex-wrap: wrap;
@@ -149,8 +135,9 @@ h1.dark-mode {
 body.dark-mode .paginacion button {
   background-color: #2e7d32;
 }
+
 body.dark-mode .paginacion button:hover {
-  background-color: #1b5e20; 
+  background-color: #1b5e20;
 }
 
 .paginacion button.activo {
@@ -167,6 +154,7 @@ body.dark-mode .paginacion button:disabled {
   background-color: #444;
   color: #999;
 }
+
 body.dark-mode .paginacion button.activo {
   background-color: #4268b9;
   color: white;

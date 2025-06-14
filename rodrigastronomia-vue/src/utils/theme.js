@@ -1,3 +1,4 @@
+// Dark Mode
 export function toggleDarkMode() {
   const isDark = document.body.classList.toggle('dark-mode')
   localStorage.setItem('dark-mode', isDark ? 'on' : 'off')

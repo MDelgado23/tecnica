@@ -13,23 +13,14 @@
         <button type="submit" class="btn-confirmar">Confirmar compra</button>
         <button type="button" class="btn-cancelar" @click="cerrar">Cancelar</button>
 
-        <button
-          v-if="usuario"
-          type="button"
-          class="logout-button"
-          @click="logout"
-        >
+        <button v-if="usuario" type="button" class="logout-button" @click="logout">
           ¿No sos vos? Cerrar sesión
         </button>
       </form>
 
       <p v-if="mensaje" class="mensaje">{{ mensaje }}</p>
 
-      <button
-        v-if="mensaje.includes('inicie sesión')"
-        @click="redirigirALogin"
-        class="login-button"
-      >
+      <button v-if="mensaje.includes('inicie sesión')" @click="redirigirALogin" class="login-button">
         Iniciar sesión
       </button>
     </div>
@@ -51,6 +42,7 @@ const emit = defineEmits(['cerrar', 'comprado'])
 
 const router = useRouter()
 const store = useUsuarioStore()
+
 const usuario = computed(() => store.usuario)
 
 const form = ref({
@@ -59,6 +51,7 @@ const form = ref({
   celnum: usuario.value?.celnum || '',
   id_curso: ''
 })
+
 const mensaje = ref('')
 
 const cerrar = () => {
@@ -76,18 +69,17 @@ const redirigirALogin = () => {
   localStorage.setItem('ruta_pendiente', router.currentRoute.value.fullPath)
   router.push('/login')
 }
-
+// Enviar el formulario de compra
 const comprar = async () => {
   try {
     form.value.id_curso = props.curso.id_curso
-
+    // Si hay usuario logueado, completamos el form con sus datos
     if (usuario.value) {
       form.value.nombre = usuario.value.nombre
       form.value.email = usuario.value.email
       form.value.celnum = usuario.value.celnum
     }
 
-    // Ya no hacemos verificación previa de email/celular: lo maneja el backend
     await api.post('/compras', form.value)
     mensaje.value = '¡Compra realizada con éxito!'
     emit('comprado')
@@ -96,8 +88,7 @@ const comprar = async () => {
     mensaje.value = 'Error al realizar la compra, inicie sesión'
   }
 }
-
-// Rellenar los datos al mostrar el modal
+// Si se muestra el modal, rellenamos los datos del form
 watch(
   () => props.mostrar,
   (mostrar) => {
@@ -115,7 +106,7 @@ watch(
     }
   }
 )
-
+// Si cambia el curso, actualizamos el ID
 watch(() => props.curso, (nuevoCurso) => {
   form.value.id_curso = nuevoCurso?.id_curso || ''
 })
