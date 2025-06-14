@@ -69,8 +69,8 @@
             <td><input v-model="cursoEditado.modalidad" /></td>
             <td><input v-model="cursoEditado.duracion" /></td>
             <td>
-              <button @click="guardarEdicion">💾 Guardar</button>
-              <button @click="editandoId = null">❌ Cancelar</button>
+              <button @click="guardarEdicion">💾</button>
+              <button @click="editandoId = null">❌</button>
             </td>
           </template>
           <template v-else>
@@ -83,8 +83,8 @@
             <td>{{ curso.modalidad }}</td>
             <td>{{ curso.duracion }}</td>
             <td>
-              <button @click="comenzarEdicion(curso)">✏️ Editar</button>
-              <button @click="eliminarCurso(curso.id_curso)">🗑 Eliminar</button>
+              <button @click="comenzarEdicion(curso)">✏️</button>
+              <button @click="eliminarCurso(curso.id_curso)">🗑</button>
             </td>
           </template>
         </tr>
@@ -335,17 +335,17 @@ h2 {
   background: white;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
   table-layout: fixed;
+  color: #555;
 }
 
 .tabla-cursos td:last-child {
-  white-space: nowrap;
   display: flex;
-  flex-wrap: wrap;
   gap: 0.4rem;
   justify-content: center;
   align-items: center;
   padding: 0.5rem;
-  min-width: 140px;
+  width: 90px;
+  box-sizing: border-box;
 }
 .tabla-cursos th,
 .tabla-cursos td {
@@ -356,6 +356,7 @@ h2 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  
 }
 
 .tabla-cursos th {
@@ -366,8 +367,8 @@ h2 {
 .tabla-cursos td:nth-child(2),
 .tabla-cursos td:nth-child(3),
 .tabla-cursos td:nth-child(5),
-.tabla-cursos td:nth-child(7),
-.tabla-cursos td:nth-child(8) {
+.tabla-cursos td:nth-child(7)
+ {
   max-width: 200px;
 }
 
@@ -378,16 +379,18 @@ h2 {
   border-radius: 4px;
 }
 .tabla-cursos button {
-  padding: 0.4rem 0.6rem;
+  width: 30px;
+  height: 30px;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
   background-color: #42b983;
   color: white;
-  font-size: 0.9rem;
-  flex: 1 1 auto;
-  min-width: 60px;
-  text-align: center;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 .tabla-cursos button:hover {
   background-color: #36976e;
