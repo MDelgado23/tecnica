@@ -19,18 +19,23 @@ class Compras extends ResourceController
     header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
     header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 
+    
+    // Obtenemos los datos del front
     $data = $this->request->getJSON(true);
 
     $usuarioModel = new UsuarioModel();
+    
+    // Verificamos si ya existe un usuario con ese email
     $usuario = $usuarioModel->where('email', $data['email'])->first();
 
     if ($usuario) {
-        // Si el email existe pero el celular no coincide, bloquear
+        // Si el email existe pero el celular no coincide, bloqueamos e invitamos a iniciar sesion
         if ($usuario['celnum'] !== $data['celnum']) {
             return $this->fail([
                 'msg' => 'Ya existe una cuenta con este email. Si es usted, inicie sesión.'
             ]);
         }
+        // Si coincide email y celnum, recuperamos su ID para continuar con la operacion
         $id_usuario = $usuario['id_usuario'];
     } else {
         // Crear nuevo usuario
@@ -43,7 +48,7 @@ class Compras extends ResourceController
         $usuarioModel->insert($usuarioData);
         $id_usuario = $usuarioModel->insertID();
     }
-
+    // Insertamos la compra en la base de datos
     $compraModel = new CompraModel();
     $compraModel->insert([
         'id_usuario' => $id_usuario,
@@ -54,7 +59,7 @@ class Compras extends ResourceController
     return $this->respondCreated(['msg' => 'Compra registrada']);
 }
 
-
+    // Obtener todos los cursos comprados de un cliente por email
     public function cliente()
     {
         header('Access-Control-Allow-Origin: *');
@@ -76,7 +81,7 @@ class Compras extends ResourceController
 
         return $this->respond($datos);
     }
-
+    // Parfa la tabla de resumen de compras por curso (Admin)
     public function resumen()
     {
         header('Access-Control-Allow-Origin: *');
@@ -90,7 +95,7 @@ class Compras extends ResourceController
 
         return $this->respond($datos);
     }
-
+    // Preflight
     public function options()
 {
     header('Access-Control-Allow-Origin: *');

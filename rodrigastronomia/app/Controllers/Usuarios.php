@@ -9,7 +9,7 @@ class Usuarios extends ResourceController
     protected $modelName = 'App\Models\UsuarioModel';
     protected $format = 'json';
 
-    public function showByEmail()
+    public function findByEmail()
     {
         header('Access-Control-Allow-Origin: *');
 
@@ -22,7 +22,7 @@ class Usuarios extends ResourceController
         return $this->respond($usuario);
     }
 
-    public function buscarPorCelular()
+    public function findByCel()
 {
     $cel = $this->request->getGet('celnum');
     if (!$cel) return $this->failValidationError('Falta el número de celular');

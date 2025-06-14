@@ -7,8 +7,8 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 
-$routes->get('usuarios/celular', 'Usuarios::buscarPorCelular');
-$routes->get('usuarios/email', 'Usuarios::showByEmail');
+$routes->get('usuarios/celular', 'Usuarios::findByCel');
+$routes->get('usuarios/email', 'Usuarios::findByEmail');
 
 $routes->get('/comprar', 'ComprasController::comprar');
 $routes->post('/comprar', 'ComprasController::comprar');
@@ -18,9 +18,7 @@ $routes->get('/admin/resumen', 'AdminController::resumenCompras');
 // Rutas RESTful de cursos
 $routes->resource('cursos'); // Esto reemplaza los GET, POST, PUT, DELETE manuales
 
-
 $routes->options('(:any)', 'Cors::options');
-
 
 $routes->group('compras', function($routes) {
     $routes->get('/', 'Compras::index');

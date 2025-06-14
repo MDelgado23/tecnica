@@ -10,6 +10,7 @@ class Cursos extends ResourceController
     protected $modelName = 'App\Models\CursoModel';
     protected $format    = 'json';
 
+    // Listado paginado dd cursos
     public function index()
     {
         header('Access-Control-Allow-Origin: *');
@@ -29,7 +30,20 @@ class Cursos extends ResourceController
 
         return $this->respond($response);
     }
+    
+    // Obtener un curso por id
+    public function show($id = null)
+    {
+        $curso = $this->model->find($id);
 
+        if (!$curso) {
+            return $this->failNotFound('Curso no encontrado');
+        }
+
+        return $this->respond($curso);
+    }
+    
+    // CRUD
     public function create()
     {
         $data = $this->request->getJSON(true);
@@ -53,56 +67,44 @@ class Cursos extends ResourceController
         return $this->respondCreated(['mensaje' => 'Curso creado correctamente']);
     }
 
-   public function update($id = null)
-{
-    $data = $this->request->getJSON(true);
+    public function update($id = null)
+    {
+        $data = $this->request->getJSON(true);
 
-    if (!$id || !$data) {
+        if (!$id || !$data) {
         return $this->failValidationError('Datos incompletos para actualizar el curso');
-    }
-
-    $cursoExistente = $this->model->find($id);
-    if (!$cursoExistente) {
+        }
+        
+        $cursoExistente = $this->model->find($id);
+        if (!$cursoExistente) {
         return $this->failNotFound('Curso no encontrado');
+        }
+
+        // Actualizamos el curso
+        $this->model->update($id, $data);
+
+        return $this->respond(['mensaje' => 'Curso actualizado correctamente']);
     }
 
-    $this->model->update($id, $data);
+    public function delete($id = null)
+    {
+        if (!$id) {
+        return $this->failValidationError('ID del curso requerido');
+        }
 
-    return $this->respond(['mensaje' => 'Curso actualizado correctamente']);
-}
+        $curso = $this->model->find($id);
 
+        if (!$curso) {
+        return $this->failNotFound('Curso no encontrado');
+        }
 
+        $this->model->delete($id);
 
+        return $this->respondDeleted(['mensaje' => 'Curso eliminado correctamente']);
+    }
+    
     public function options()
     {
         return $this->response->setStatusCode(200);
     }
-
-    public function show($id = null)
-    {
-        $curso = $this->model->find($id);
-
-        if (!$curso) {
-            return $this->failNotFound('Curso no encontrado');
-        }
-
-        return $this->respond($curso);
-    }
-
-    public function delete($id = null)
-{
-    if (!$id) {
-        return $this->failValidationError('ID del curso requerido');
-    }
-
-    $curso = $this->model->find($id);
-
-    if (!$curso) {
-        return $this->failNotFound('Curso no encontrado');
-    }
-
-    $this->model->delete($id);
-
-    return $this->respondDeleted(['mensaje' => 'Curso eliminado correctamente']);
-}
 }
