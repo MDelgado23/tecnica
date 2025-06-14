@@ -25,6 +25,10 @@ services:
       - ./rodrigastronomia:/var/www/html
     depends_on:
       - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: rodri
+      DB_PASS: rodri123
 
   frontend:
     build: ./rodrigastronomia-vue
