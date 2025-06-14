@@ -1,19 +1,17 @@
 <template>
   <div class="mis-cursos-container">
     <h2>Mis cursos comprados</h2>
-
-    <div v-if="cargando" class="loading">Cargando cursos...</div>
-
+    <div v-if="cargando" class="loading">Cargando cursos...
+    </div>
     <div v-else-if="cursos.length" class="mis-cursos-grid">
       <div v-for="curso in cursos" :key="curso.id_compra" class="curso-card animate-fade">
-        <img :src="curso.imagen || defaultImagen" alt="Imagen del curso" />
+        <img :src="curso.imagen" alt="Imagen del curso" />
         <div class="curso-info">
           <h3>{{ curso.nombre }}</h3>
           <p> {{ formatearFecha(curso.fecha_compra) }}</p>
         </div>
       </div>
     </div>
-
     <p v-else class="no-resultado">No se encontraron cursos comprados.</p>
   </div>
 </template>
@@ -26,26 +24,22 @@ import api from '../axios'
 
 const router = useRouter()
 const store = useUsuarioStore()
-
+// Estados
 const cursos = ref([])
 const cargando = ref(true)
-const defaultImagen = '/default-curso.jpg'
 
 onMounted(async () => {
-  if (!store.usuario) {
+  // Si no hay usuario en el store, redireccionamos al login
+  if (!store.usuario || !store.usuario.email) {
     localStorage.setItem('ruta_pendiente', router.currentRoute.value.fullPath)
     router.push('/login')
     return
   }
 
+  // Obtener cursos directamente desde la API usando el email del cliente
   try {
-    if (Array.isArray(store.cursosComprados) && store.cursosComprados.length > 0) {
-      cursos.value = store.cursosComprados
-    } else {
-      const res = await api.get(`/compras/cliente?email=${store.usuario.email}`)
-      cursos.value = res.data
-      store.setCursosComprados(res.data)
-    }
+    const res = await api.get(`/compras/cliente?email=${store.usuario.email}`)
+    cursos.value = res.data
   } catch (err) {
     console.error('Error al cargar cursos:', err)
   } finally {
@@ -71,19 +65,16 @@ const formatearFecha = (fechaISO) => {
   margin: auto;
   padding: 2rem;
 }
-
 h2 {
   text-align: center;
   margin-bottom: 2rem;
 }
-
 .mis-cursos-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
   justify-content: center;
 }
-
 .curso-card {
   width: 300px;
   background-color: white;
@@ -97,54 +88,45 @@ h2 {
   transform: translateY(20px);
   animation: fadeUp 0.5s ease forwards;
 }
-
 .curso-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
 }
-
 @keyframes fadeUp {
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
 .curso-card img {
   width: 100%;
   height: 180px;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
-
 .curso-card:hover img {
   transform: scale(1.05);
 }
-
 .curso-info {
   padding: 1rem;
   text-align: center;
 }
-
 .curso-info h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1.2rem;
   color: #333;
 }
-
 .curso-info p {
   margin: 0;
   color: #555;
   font-size: 0.95rem;
 }
-
 .loading {
   text-align: center;
   color: #42b983;
   font-weight: bold;
   margin-top: 2rem;
 }
-
 .no-resultado {
   text-align: center;
   color: #999;

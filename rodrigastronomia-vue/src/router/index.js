@@ -8,7 +8,7 @@ import CursoDetalle from '../views/CursoDetalle.vue'
 const routes = [
   { path: '/', component: CursosView },
    {path: '/curso/:id', component: CursoDetalle},
- // { path: '/comprar', component: ComprarView },
+ // { path: '/comprar', component: ComprarView }, // Pase de tener una view para el form para comprar, a meterlo en un modal.
   { path: '/mis-cursos', component: MisCursosView },
   { path: '/admin', component: AdminView },
   { path: '/login', component: Login }

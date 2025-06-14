@@ -1,12 +1,11 @@
 <template>
   <div class="container">
     <h2>Iniciar sesión</h2>
-
+    <!-- Form / input del login -->
     <form @submit.prevent="login">
       <input v-model="email" type="email" placeholder="Tu email" required />
       <button type="submit">Ingresar</button>
     </form>
-
     <p v-if="error" class="error">{{ error }}</p>
   </div>
 </template>
@@ -19,25 +18,24 @@ import api from '../axios'
 
 const email = ref('')
 const error = ref('')
+
 const router = useRouter()
 const store = useUsuarioStore()
 
+// Metodo del login
 const login = async () => {
   try {
     const res = await api.get(`/usuarios/email?email=${email.value}`)
 
     store.setUsuario(res.data)
 
-    const destino = localStorage.getItem('ruta_pendiente') || '/'
-    localStorage.removeItem('ruta_pendiente')
-    router.push(destino)
+    router.push('/')
   } catch (err) {
     console.error(err)
     error.value = 'Usuario no encontrado'
   }
 }
 </script>
-
 
 <style scoped>
 .container {
